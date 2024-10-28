@@ -1,5 +1,8 @@
-while (true) {
-    alert("Bienvenido al teatro Coderhouse!")
+alert("Bienvenido al teatro Coderhouse!")
+
+let continuarPrograma = true
+
+while (continuarPrograma) {
 
     let obra
     do {
@@ -79,7 +82,7 @@ while (true) {
 
     let continuar
     do {
-        continuar = prompt("El valor total de su compra es: " + valorTotal + " USD.\nDesea continuar?\n1 - SI\n2 - NO").toUpperCase()
+        continuar = prompt("El valor total de su compra es: " + valorTotal + " USD.\nDesea continuar?\n1 - SI\n2 - NO")
         if (continuar === null) {
             alert("Operación cancelada.");
             break;
@@ -87,13 +90,21 @@ while (true) {
         switch (continuar) {
             case "1":
                 alert("Muchas gracias por su compra! Ha adquirido " + cantidad + " entrada(s) para la función " + obra + " por un precio de " + valorTotal + " USD. Su ubicación se encuentra dentro de las filas " + filasElegidas + ".")
+                continuarPrograma = false;
                 break;
             case "2":
                 alert("Operación cancelada.")
+                continuarPrograma = false;
                 break;
             default:
-                alert("Opción inválida. Por favor, elija 1, 2 o 3.")
+                alert("Opción inválida. Por favor, elija 1 o 2")
                 continuar = "";
         }
     } while (continuar === "");
+
+    if (continuar === null) {
+        break;
+    }
 }
+
+alert("Gracias por visitar el teatro Coderhouse!")
