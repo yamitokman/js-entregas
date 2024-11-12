@@ -13,11 +13,12 @@ const filas = [
 ]
 
 const merchandising = [
-    { id: 1, producto: "taza", precio: 10, stock: 17 },
-    { id: 2, producto: "remera", precio: 25, stock: 20 },
-    { id: 3, producto: "buzo", precio: 45, stock: 7 },
-    { id: 4, producto: "poster", precio: 5, stock: 31 },
-    { id: 5, producto: "programa", precio: 2, stock: 56 },
+    { id: 1, producto: "taza", precio: 10, stock: 17, categoria: "souvenir" },
+    { id: 2, producto: "remera", precio: 25, stock: 20, categoria: "ropa" },
+    { id: 3, producto: "buzo", precio: 45, stock: 7, categoria: "ropa" },
+    { id: 4, producto: "poster", precio: 5, stock: 31, categoria: "souvenir" },
+    { id: 5, producto: "programa", precio: 2, stock: 56, categoria: "souvenir" },
+    { id: 6, producto: "gorra", precio: 15, stock: 9, categoria: "ropa" },
 ]
 
 let continuarPrograma = true
@@ -40,19 +41,16 @@ while (continuarPrograma) {
 
     // Seleccion de la obra
     const numeroObra = obtenerInput("Ingrese el número correspondiente a la obra que desea ver: \n1 - HTML The Play\n2 - CSS The Play\n3 - Javascript The Play", (valor => valor < 1 || valor > 3))
-
     if (numeroObra === null) break;
 
     const obraSeleccionada = obras.find((obra) => obra.numero === numeroObra)
 
     // Seleccion de cantidad de entradas
     const cantidad = obtenerInput("Cuántas entradas desea obtener? El máximo es 4 por persona.", (valor) => valor < 1 || valor > 4)
-
     if (cantidad === null) break;
 
     // Seleccion de fila
     const fila = obtenerInput("Ingrese el número correspondiente a su ubicación preferida: \n1 - Filas 1 a 30 (100 USD)\n2 - Filas 31 a 60 (60 USD)\n3 - Filas 61 a 100 (30 USD)", (valor) => valor < 1 || valor > 3)
-
     if (fila === null) break;
     const filaSeleccionada = filas[fila - 1];
 
@@ -67,29 +65,43 @@ while (continuarPrograma) {
     if (merch === null) {
         alert("Operación cancelada.");
         continuarCompraMerch = false
-    }
-    merch = Number(merch);
-    if (merch === 1) {
-        deseaComprarMerch = true
-    } else if (merch === 2) {
-        deseaComprarMerch = false
-        continuarCompraMerch = false
     } else {
-        alert("Opción inválida. Por favor, elija 1 o 2.")
-        continuarCompraMerch = false
+        merch = Number(merch);
+        if (merch === 1) {
+            deseaComprarMerch = true
+        } else if (merch === 2) {
+            continuarCompraMerch = false
+        } else {
+            alert("Opción inválida. Por favor, elija 1 o 2.")
+            continuarCompraMerch = false
+        }
     }
 
     if (deseaComprarMerch) {
         while (continuarCompraMerch) {
-            // Mostrar los productos disponibles
+
+            // Seleccionar categoria
+            let categoriaSeleccionada
+            let categoriaNumero = obtenerInput("Elija la categoría del producto que desea comprar:\n1 - Ropa\n2 - Souvenir", (valor) => valor < 1 || valor > 2);
+            if (categoriaNumero === null) break;
+
+            if (categoriaNumero === 1) {
+                categoriaSeleccionada = "ropa"
+            } else if (categoriaNumero === 2) {
+                categoriaSeleccionada = "souvenir"
+            }
+
+            const productosFiltrados = merchandising.filter(item => item.categoria === categoriaSeleccionada);
+
+            // Mostrar los productos disponibles de la categoria seleccionada
             let salida = "ID - PRODUCTO - PRECIO\n\n"
-            salida += merchandising.map(item => item.id + " - " + item.producto.toUpperCase() + " - " + item.precio + " USD").join("\n")
+            salida += productosFiltrados.map(item => item.id + " - " + item.producto.toUpperCase() + " - " + item.precio + " USD").join("\n");
 
             // Pedir ID del producto
-            let idProducto = prompt("Ingrese el ID del producto que desea comprar:\n\n" + salida)
-            idProducto = Number(idProducto);
-
-            const productoSeleccionado = merchandising.find(item => item.id === idProducto)
+            let idProducto = obtenerInput("Ingrese el ID del producto que desea comprar:\n\n" + salida, (valor) => !productosFiltrados.some(item => item.id === valor));
+            if (idProducto === null) break;
+            
+            const productoSeleccionado = productosFiltrados.find(item => item.id === idProducto)
             if (!productoSeleccionado) {
                 alert("Producto no encontrado.");
                 continue;
@@ -97,7 +109,6 @@ while (continuarPrograma) {
 
             // Pedir cantidad y verificar si hay suficiente stock
             let cantidadProducto = obtenerInput("Cuántos productos desea comprar de " + productoSeleccionado.producto + "? Hay " + productoSeleccionado.stock + " en stock", (valor) => valor < 1 || isNaN(valor));
-
             if (cantidadProducto === null) break;
 
             // Verificar si hay suficiente stock
@@ -130,6 +141,8 @@ while (continuarPrograma) {
 
     // Confirmacion de compra
     const totalCompra = valorTotalEntradas + totalMerchandising
+
+    // Continuar con la compra
     let continuar
     do {
         continuar = prompt("El valor total de su compra es: " + totalCompra + " USD.\nDesea continuar?\n1 - SI\n2 - NO")
