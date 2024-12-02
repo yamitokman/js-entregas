@@ -1,181 +1,294 @@
-alert("Bienvenido al teatro Coderhouse!")
-
 const obras = [
-    { numero: 1, titulo: "HTML The Play" },
-    { numero: 2, titulo: "CSS The Play" },
-    { numero: 3, titulo: "Javascript The Play" }
-]
+    {
+        numero: 1,
+        titulo: "HTML The Play",
+        img: "./imgs/portadas/portada-html.png",
+        merch: [
+            { nombre: "Taza", precio: 10, stock: 10, img: "./imgs/img-html/html-taza.png" },
+            { nombre: "Poster", precio: 5, stock: 15, img: "./imgs/img-html/html-poster.png" },
+            { nombre: "Gorra", precio: 15, stock: 8, img: "./imgs/img-html/html-gorra.png" },
+            { nombre: "Buzo", precio: 40, stock: 5, img: "./imgs/img-html/html-buzo.png" },
+            { nombre: "Remera", precio: 20, stock: 20, img: "./imgs/img-html/html-remera.png" },
+            { nombre: "Programa", precio: 3, stock: 25, img: "./imgs/img-html/html-programa.png" },
+        ],
+    },
+    {
+        numero: 2,
+        titulo: "CSS The Play",
+        img: "./imgs/portadas/portada-css.png",
+        merch: [
+            { nombre: "Taza", precio: 10, stock: 10, img: "./imgs/img-css/css-taza.png" },
+            { nombre: "Poster", precio: 5, stock: 15, img: "./imgs/img-css/css-poster.png" },
+            { nombre: "Gorra", precio: 15, stock: 8, img: "./imgs/img-css/css-gorra.png" },
+            { nombre: "Buzo", precio: 40, stock: 5, img: "./imgs/img-css/css-buzo.png" },
+            { nombre: "Remera", precio: 20, stock: 20, img: "./imgs/img-css/css-remera.png" },
+            { nombre: "Programa", precio: 3, stock: 25, img: "./imgs/img-css/css-programa.png" },
+        ],
+    },
+    {
+        numero: 3,
+        titulo: "JavaScript The Play",
+        img: "./imgs/portadas/portada-js.png",
+        merch: [
+            { nombre: "Taza", precio: 10, stock: 10, img: "./imgs/img-javascript/javascript-taza.png" },
+            { nombre: "Poster", precio: 5, stock: 15, img: "./imgs/img-javascript/javascript-poster.png" },
+            { nombre: "Gorra", precio: 15, stock: 8, img: "./imgs/img-javascript/javascript-gorra.png" },
+            { nombre: "Buzo", precio: 40, stock: 5, img: "./imgs/img-javascript/javascript-buzo.png" },
+            { nombre: "Remera", precio: 20, stock: 20, img: "./imgs/img-javascript/javascript-remera.png" },
+            { nombre: "Programa", precio: 3, stock: 25, img: "./imgs/img-javascript/javascript-programa.png" },
+        ],
+    },
+];
 
 const filas = [
     { rango: "1 a 30", precio: 100 },
     { rango: "31 a 60", precio: 60 },
-    { rango: "61 a 100", precio: 30 }
-]
+    { rango: "61 a 100", precio: 30 },
+];
 
-const merchandising = [
-    { id: 1, producto: "taza", precio: 10, stock: 17, categoria: "souvenir" },
-    { id: 2, producto: "remera", precio: 25, stock: 20, categoria: "ropa" },
-    { id: 3, producto: "buzo", precio: 45, stock: 7, categoria: "ropa" },
-    { id: 4, producto: "poster", precio: 5, stock: 31, categoria: "souvenir" },
-    { id: 5, producto: "programa", precio: 2, stock: 56, categoria: "souvenir" },
-    { id: 6, producto: "gorra", precio: 15, stock: 9, categoria: "ropa" },
-]
+let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
-let continuarPrograma = true
-let carrito = []
-
-// Funcion para obtener una entrada valida
-const obtenerInput = (mensaje, validaciones) => {
-    let valor;
-    do {
-        valor = prompt(mensaje);
-        if (valor === null) {
-            return null
-        }
-        valor = Number(valor)
-    } while (isNaN(valor) || validaciones(valor));
-    return valor;
+function guardarCarrito() {
+    localStorage.setItem('carrito', JSON.stringify(carrito));
 }
 
-while (continuarPrograma) {
-
-    // Seleccion de la obra
-    const numeroObra = obtenerInput("Ingrese el número correspondiente a la obra que desea ver: \n1 - HTML The Play\n2 - CSS The Play\n3 - Javascript The Play", (valor => valor < 1 || valor > 3))
-    if (numeroObra === null) break;
-
-    const obraSeleccionada = obras.find((obra) => obra.numero === numeroObra)
-
-    // Seleccion de cantidad de entradas
-    const cantidad = obtenerInput("Cuántas entradas desea obtener? El máximo es 4 por persona.", (valor) => valor < 1 || valor > 4)
-    if (cantidad === null) break;
-
-    // Seleccion de fila
-    const fila = obtenerInput("Ingrese el número correspondiente a su ubicación preferida: \n1 - Filas 1 a 30 (100 USD)\n2 - Filas 31 a 60 (60 USD)\n3 - Filas 61 a 100 (30 USD)", (valor) => valor < 1 || valor > 3)
-    if (fila === null) break;
-    const filaSeleccionada = filas[fila - 1];
-
-    // Calculo del valor total de las entradas
-    const valorTotalEntradas = cantidad * filaSeleccionada.precio;
-
-    // Comprar merchandising?
-    let deseaComprarMerch = false;
-    let continuarCompraMerch = true;
-
-    let merch = prompt("Desea comprar merchandising de la obra?\nIngrese el número correspondiente:\n1 - SI\n2 - NO")
-    if (merch === null) {
-        alert("Operación cancelada.");
-        continuarCompraMerch = false
-    } else {
-        merch = Number(merch);
-        if (merch === 1) {
-            deseaComprarMerch = true
-        } else if (merch === 2) {
-            continuarCompraMerch = false
-        } else {
-            alert("Opción inválida. Por favor, elija 1 o 2.")
-            continuarCompraMerch = false
+// Funcion para calcular el total del carrito
+function calcularTotal() {
+    return carrito.reduce((total, item) => {
+        if (item.tipo === "obra") {
+            return total + item.precio;
+        } else if (item.tipo === "merch") {
+            return total + item.precioTotal;
         }
+        return total;
+    }, 0);
+    return total;
+}
+
+// Funcion para actualizar el carrito
+function actualizarCarrito() {
+    const cartContent = document.getElementById("cart-content");
+    const cartCount = document.getElementById("cart-count");
+    const cartTotal = document.getElementById("cart-total");
+
+    if (!cartContent || !cartCount || !cartTotal) {
+        console.error("Elementos del carrito no encontrados en el DOM.");
+        return;
     }
 
-    if (deseaComprarMerch) {
-        while (continuarCompraMerch) {
+    cartCount.textContent = carrito.length;
 
-            // Seleccionar categoria
-            let categoriaSeleccionada
-            let categoriaNumero = obtenerInput("Elija la categoría del producto que desea comprar:\n1 - Ropa\n2 - Souvenir", (valor) => valor < 1 || valor > 2);
-            if (categoriaNumero === null) break;
+    if (carrito.length === 0) {
+        cartContent.innerHTML = "<p>Tu carrito está vacío.</p>";
+        cartTotal.style.display = "none";
+        guardarCarrito();
+        return;
+    }
 
-            if (categoriaNumero === 1) {
-                categoriaSeleccionada = "ropa"
-            } else if (categoriaNumero === 2) {
-                categoriaSeleccionada = "souvenir"
-            }
+    const lista = document.createElement("ul");
+    lista.className = "list-group";
 
-            const productosFiltrados = merchandising.filter(item => item.categoria === categoriaSeleccionada);
+    carrito.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+            <span>
+                ${item.tipo === "obra"
+                ? `🎭 Obra: ${item.titulo} - Fecha: ${item.fecha} - Fila: ${item.fila} - Cantidad: ${item.cantidad} - $${item.precio}`
+                : `🛒 Merch: ${item.item} (x${item.cantidad}) - $${item.precioTotal}`}
+            </span>
+            <button class="btn btn-sm btn-danger eliminar-item" data-index="${index}">Eliminar</button>
+        `;
+        lista.appendChild(li);
+    });
 
-            // Mostrar los productos disponibles de la categoria seleccionada
-            let salida = "ID - PRODUCTO - PRECIO\n\n"
-            salida += productosFiltrados.map(item => item.id + " - " + item.producto.toUpperCase() + " - " + item.precio + " USD").join("\n");
+    cartContent.innerHTML = "";
+    cartContent.appendChild(lista);
 
-            // Pedir ID del producto
-            let idProducto = obtenerInput("Ingrese el ID del producto que desea comprar:\n\n" + salida, (valor) => !productosFiltrados.some(item => item.id === valor));
-            if (idProducto === null) break;
-            
-            const productoSeleccionado = productosFiltrados.find(item => item.id === idProducto)
-            if (!productoSeleccionado) {
-                alert("Producto no encontrado.");
-                continue;
-            }
+    const total = calcularTotal();
+    cartTotal.textContent = `Total: $${total}`;
+    cartTotal.style.display = "block";
 
-            // Pedir cantidad y verificar si hay suficiente stock
-            let cantidadProducto = obtenerInput("Cuántos productos desea comprar de " + productoSeleccionado.producto + "? Hay " + productoSeleccionado.stock + " en stock", (valor) => valor < 1 || isNaN(valor));
-            if (cantidadProducto === null) break;
+    document.querySelectorAll(".eliminar-item").forEach((boton) => {
+        boton.addEventListener("click", (e) => {
+            const index = e.target.dataset.index;
+            eliminarItemCarrito(index);
+        });
 
-            // Verificar si hay suficiente stock
-            if (cantidadProducto > productoSeleccionado.stock) {
-                alert("No hay suficiente stock para esa cantidad. Intente con una cantidad menor.")
-                continue;
-            }
+    });
 
-            // Restar del stock disponible
-            productoSeleccionado.stock -= cantidadProducto;
+    guardarCarrito();
+}
 
-            // Agregar al carrito
+// Funcion para eliminar un ítem del carrito
+function eliminarItemCarrito(index) {
+    carrito.splice(index, 1);
+    actualizarCarrito();
+}
+
+// Funcion para agregar una obra al carrito
+function agregarObraAlCarrito(numeroObra, fecha, fila) {
+    const obra = obras.find((o) => o.numero === parseInt(numeroObra));
+    const tarjeta = document.querySelector(`.agregar-obra[data-numero="${numeroObra}"]`).closest(".card");
+    const cantidadEntradas = tarjeta.querySelector(".cantidad-entradas").value;
+
+    if (!fecha || !fila || cantidadEntradas <= 0) {
+        alert("Por favor, selecciona una fecha, fila válida y cantidad mayor a 0.");
+        return;
+    }
+
+    const filaSeleccionada = filas.find((f) => f.rango === fila);
+    const precioFila = filaSeleccionada ? filaSeleccionada.precio : 0;
+
+    carrito.push({
+        tipo: "obra",
+        titulo: obra.titulo,
+        fecha,
+        fila,
+        cantidad: parseInt(cantidadEntradas),
+        precio: precioFila * parseInt(cantidadEntradas),
+    });
+
+    actualizarCarrito();
+}
+
+// Función para agregar merchandising al carrito
+function agregarMerchAlCarrito(numeroObra) {
+    const obra = obras.find((o) => o.numero === parseInt(numeroObra));
+    const inputs = document.querySelectorAll(".cantidad-merch");
+    const itemsSeleccionados = Array.from(inputs)
+        .filter((input) => parseInt(input.value) > 0)
+        .map((input) => ({
+            nombre: input.dataset.nombre,
+            cantidad: parseInt(input.value),
+            precio: parseInt(input.dataset.precio),
+        }));
+
+    itemsSeleccionados.forEach((item) => {
+        const merch = obra.merch.find((m) => m.nombre === item.nombre);
+        if (merch && merch.stock >= item.cantidad) {
+            merch.stock -= item.cantidad;
             carrito.push({
-                producto: productoSeleccionado.producto,
-                cantidad: cantidadProducto,
-                precio: productoSeleccionado.precio,
-                total: productoSeleccionado.precio * cantidadProducto
+                tipo: "merch",
+                titulo: obra.titulo,
+                item: item.nombre,
+                cantidad: item.cantidad,
+                precioTotal: item.cantidad * item.precio,
             });
-
-            // Preguntar si quiere agregar más productos
-            let continuarOtroProducto = prompt("¿Desea agregar más productos al carrito?\n1 - Sí\n2 - No");
-            if (continuarOtroProducto === "2") {
-                continuarCompraMerch = false;
-            }
+        } else {
+            alert(`No hay suficiente stock para ${item.nombre}.`);
         }
-    }
+    });
 
-    // Calcular total del carrito de merchandising
-    const totalMerchandising = carrito.reduce((total, item) => total + item.total, 0);
-
-    // Confirmacion de compra
-    const totalCompra = valorTotalEntradas + totalMerchandising
-
-    // Continuar con la compra
-    let continuar
-    do {
-        continuar = prompt("El valor total de su compra es: " + totalCompra + " USD.\nDesea continuar?\n1 - SI\n2 - NO")
-        if (continuar === null) {
-            alert("Operación cancelada.");
-            break;
-        }
-        switch (continuar) {
-            case "1":
-                let resumenCompra = "Muchas gracias por su compra! Ha adquirido " + cantidad + " entrada(s) para la función " + obraSeleccionada.titulo + " por un precio de " + valorTotalEntradas + " USD. Su ubicación se encuentra dentro de las filas " + filaSeleccionada.rango + ".";
-                if (carrito.length > 0) {
-                    resumenCompra += "\n\nProductos adicionales:\n"
-                    carrito.forEach(item => {
-                        resumenCompra += item.cantidad + "x " + item.producto + " = " + item.total + " USD\n";
-                    })
-                }
-                resumenCompra += "\nTotal: " + totalCompra + " USD."
-                alert(resumenCompra);
-                continuarPrograma = false;
-                break;
-            case "2":
-                alert("Operación cancelada.")
-                continuarPrograma = false;
-                break;
-            default:
-                alert("Opción inválida. Por favor, elija 1 o 2")
-                continuar = "";
-        }
-    } while (continuar === "");
-
-    if (continuar === null) {
-        break;
-    }
+    actualizarCarrito();
 }
 
-alert("Gracias por visitar el teatro Coderhouse!")
+// Función para renderizar las obras
+function renderizarObras() {
+    const container = document.getElementById("obras-container");
+    if (!container) {
+        alert("Error: contenedor de obras no encontrado.");
+        return;
+    }
+
+    container.innerHTML = "";
+
+    obras.forEach((obra) => {
+        const card = document.createElement("div");
+        card.className = "col-md-4 mb-3";
+        card.innerHTML = `
+            <div class="card">
+                <img src="${obra.img}" class="card-img-top" alt="${obra.titulo}">
+                <div class="card-body text-center">
+                    <h5 class="card-title">${obra.titulo}</h5>
+                    <p>Selecciona una fecha, fila y cantidad de entradas:</p>
+                    <input type="date" class="form-control mb-2">
+                    <select class="form-select mb-2">
+                        ${filas
+                .map(
+                    (fila) =>
+                        `<option value="${fila.rango}">Filas ${fila.rango} ($${fila.precio})</option>`
+                )
+                .join("")}
+                    </select>
+                    <input type="number" class="form-control mb-3 cantidad-entradas" min="1" value="1">
+                    <div class="mt-3">
+                        <button class="btn btn-primary agregar-obra" data-numero="${obra.numero}">Agregar Obra al Carrito</button>
+                        <button class="btn btn-secondary mostrar-merch" data-numero="${obra.numero}">Comprar Merch</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+
+    asignarEventosObras();
+    asignarEventosMerch();
+}
+
+// Funcion para asignar eventos a las obras
+function asignarEventosObras() {
+    document.querySelectorAll(".agregar-obra").forEach((boton) => {
+        boton.addEventListener("click", () => {
+            const tarjeta = boton.closest(".card");
+            const fecha = tarjeta.querySelector('input[type="date"]').value;
+            const fila = tarjeta.querySelector("select").value;
+            const numeroObra = boton.dataset.numero;
+
+            if (!fecha || !fila) {
+                alert("Por favor, selecciona una fecha y fila.");
+                return;
+            }
+
+            agregarObraAlCarrito(numeroObra, fecha, fila);
+        });
+    });
+}
+
+// Funcion para asignar eventos al merchandising
+function asignarEventosMerch() {
+    document.querySelectorAll(".mostrar-merch").forEach((boton) => {
+        boton.addEventListener("click", () => {
+            const numeroObra = boton.dataset.numero;
+            mostrarMerch(numeroObra);
+        });
+    });
+}
+
+// Funcion para mostrar el merchandising en base a la obra seleccionada
+function mostrarMerch(numeroObra) {
+    const obra = obras.find((o) => o.numero === parseInt(numeroObra));
+    const container = document.getElementById("merch-container");
+    container.innerHTML = `
+        <h3>Merchandising de ${obra.titulo}</h3>
+        <div class="row">
+            ${obra.merch
+            .map(
+                (item) =>
+                    `<div class="col-md-4 merch-item">
+                            <img src="${item.img}" alt="${item.nombre}" class="img-fluid">
+                            <p>${item.nombre} - $${item.precio} (Stock: ${item.stock})</p>
+                            <input type="number" min="1" max="${item.stock}" value="0" class="form-control mb-2 cantidad-merch" data-nombre="${item.nombre}" data-precio="${item.precio}" data-stock="${item.stock}">
+                        </div>`
+            )
+            .join("")}
+        </div>
+        <button id="agregar-merch" class="btn btn-success mt-3">Agregar Merch al Carrito</button>
+    `;
+    container.style.display = "block";
+
+    document.getElementById("agregar-merch").addEventListener("click", () => {
+        agregarMerchAlCarrito(numeroObra);
+    });
+}
+
+function ocultarMerch() {
+    const container = document.getElementById("merch-container");
+    container.style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    renderizarObras();
+    actualizarCarrito();
+});

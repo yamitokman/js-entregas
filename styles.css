@@ -1,0 +1,162 @@
+/* Navbar */
+#navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Body */
+body {
+    padding-top: 56px;
+}
+
+/* Banner */
+.text-over-image {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.text-over-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(70%);
+    border-radius: 10px;
+}
+
+.text-over-image .text-content {
+    position: absolute;
+    text-align: center;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px 40px;
+    border-radius: 10px;
+}
+
+.text-over-image .cta a {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Obras Destacadas */
+.obra-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.obra-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.obra-img {
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+/* Merchandising */
+#merch-container {
+    display: block;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.merch-item {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.merch-img {
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+/* Cantidad Control */
+.cantidad-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.cantidad-control button {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cantidad-control button:hover {
+    background-color: #0056b3;
+}
+
+.cantidad-control input {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    height: 30px;
+}
+
+/* Carrito */
+#cart-content {
+    padding: 15px;
+}
+
+.carrito-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.carrito-item:last-child {
+    border-bottom: none;
+}
+
+.carrito-item p {
+    margin: 0;
+}
+
+/* Total del Carrito */
+#total-content {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: right;
+    margin-top: 15px;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: #fff;
+    font-size: 0.9rem;
+    padding: 15px;
+    text-align: center;
+}
