@@ -97,7 +97,7 @@ function actualizarCarrito() {
                 ? `🎭 Obra: ${item.titulo} - Fecha: ${item.fecha} - Fila: ${item.fila} - Cantidad: ${item.cantidad} - $${item.precio}`
                 : `🛒 Merch: ${item.item} (x${item.cantidad}) - $${item.precioTotal}`}
             </span>
-            <button class="btn btn-sm btn-danger eliminar-item" data-index="${index}">Eliminar</button>
+            <button class="btn btn-sm btn-danger eliminar-item" data-index="${index}">🗑 Eliminar</button>
         `;
         lista.appendChild(li);
     });
@@ -156,6 +156,7 @@ function agregarObraAlCarrito(numeroObra, fecha, fila) {
 function agregarMerchAlCarrito(numeroObra) {
     const obra = obras.find((o) => o.numero === parseInt(numeroObra));
     const inputs = document.querySelectorAll(".cantidad-merch");
+
     const itemsSeleccionados = Array.from(inputs)
         .filter((input) => parseInt(input.value) > 0)
         .map((input) => ({
@@ -166,6 +167,7 @@ function agregarMerchAlCarrito(numeroObra) {
 
     itemsSeleccionados.forEach((item) => {
         const merch = obra.merch.find((m) => m.nombre === item.nombre);
+
         if (merch && merch.stock >= item.cantidad) {
             merch.stock -= item.cantidad;
             carrito.push({
@@ -181,6 +183,7 @@ function agregarMerchAlCarrito(numeroObra) {
     });
 
     actualizarCarrito();
+    mostrarMerch(numeroObra);
 }
 
 // Función para renderizar las obras
@@ -195,7 +198,7 @@ function renderizarObras() {
 
     obras.forEach((obra) => {
         const card = document.createElement("div");
-        card.className = "col-md-4 mb-3";
+        card.className = "col-md-4 mb-3 obra-card";
         card.innerHTML = `
             <div class="card">
                 <img src="${obra.img}" class="card-img-top" alt="${obra.titulo}">
@@ -213,8 +216,8 @@ function renderizarObras() {
                     </select>
                     <input type="number" class="form-control mb-3 cantidad-entradas" min="1" value="1">
                     <div class="mt-3">
-                        <button class="btn btn-primary agregar-obra" data-numero="${obra.numero}">Agregar Obra al Carrito</button>
-                        <button class="btn btn-secondary mostrar-merch" data-numero="${obra.numero}">Comprar Merch</button>
+                        <button id="boton-agregar" class="btn btn-primary agregar-obra" data-numero="${obra.numero}">Agregar Obra al Carrito</button>
+                        <button id="boton-merch" class="btn btn-secondary mostrar-merch" data-numero="${obra.numero}">Comprar Merch</button>
                     </div>
                 </div>
             </div>
@@ -263,15 +266,23 @@ function mostrarMerch(numeroObra) {
         <h3>Merchandising de ${obra.titulo}</h3>
         <div class="row">
             ${obra.merch
-            .map(
-                (item) =>
-                    `<div class="col-md-4 merch-item">
+                .map(
+                    (item) =>
+                        `<div class="col-md-4 merch-item">
                             <img src="${item.img}" alt="${item.nombre}" class="img-fluid">
                             <p>${item.nombre} - $${item.precio} (Stock: ${item.stock})</p>
-                            <input type="number" min="1" max="${item.stock}" value="0" class="form-control mb-2 cantidad-merch" data-nombre="${item.nombre}" data-precio="${item.precio}" data-stock="${item.stock}">
+                            <input 
+                                type="number" 
+                                min="1" 
+                                max="${item.stock}" 
+                                value="0" 
+                                class="form-control mb-2 cantidad-merch" 
+                                data-nombre="${item.nombre}" 
+                                data-precio="${item.precio}" 
+                                data-stock="${item.stock}">
                         </div>`
-            )
-            .join("")}
+                )
+                .join("")}
         </div>
         <button id="agregar-merch" class="btn btn-success mt-3">Agregar Merch al Carrito</button>
     `;
@@ -282,13 +293,99 @@ function mostrarMerch(numeroObra) {
     });
 }
 
+// Funcion para ocultar merch
 function ocultarMerch() {
     const container = document.getElementById("merch-container");
     container.style.display = "none";
 }
 
+// Función para finalizar la compra
+function finalizarCompra() {
+    if (carrito.length === 0) {
+        alert("Tu carrito está vacío. Agrega productos antes de finalizar la compra.");
+        return;
+    }
+
+    alert("¡Gracias por tu compra! 🛒🎉");
+    
+    carrito = [];
+    
+    actualizarCarrito();
+
+    const cartModal = document.getElementById("cartModal");
+    const modalInstance = bootstrap.Modal.getInstance(cartModal);
+    if (modalInstance) {
+        modalInstance.hide();
+    }
+}
+
+// Función para filtrar las obras según la búsqueda del usuario
+function buscarObras() {
+    const searchQuery = document.getElementById('search-input').value.toLowerCase();
+    const obrasContainer = document.getElementById('obras-container');
+    const obrasFiltradas = obras.filter(obra => 
+        obra.titulo.toLowerCase().includes(searchQuery)
+    );
+    
+    obrasContainer.innerHTML = '';
+
+    obrasFiltradas.forEach(obra => {
+        const card = document.createElement('div');
+        card.className = 'col-md-4 mb-3 obra-card';
+        card.innerHTML = `
+            <div class="card">
+                <img src="${obra.img}" class="card-img-top" alt="${obra.titulo}">
+                <div class="card-body text-center">
+                    <h5 class="card-title">${obra.titulo}</h5>
+                    <p>Selecciona una fecha, fila y cantidad de entradas:</p>
+                    <input type="date" class="form-control mb-2">
+                    <select class="form-select mb-2">
+                        ${filas.map(fila => `<option value="${fila.rango}">Filas ${fila.rango} ($${fila.precio})</option>`).join('')}
+                    </select>
+                    <input type="number" class="form-control mb-3 cantidad-entradas" min="1" value="1">
+                    <div class="mt-3">
+                        <button class="btn agregar-obra" data-numero="${obra.numero}">Agregar Obra al Carrito</button>
+                        <button class="btn mostrar-merch" data-numero="${obra.numero}">Comprar Merch</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        obrasContainer.appendChild(card);
+    });
+
+    if (obrasFiltradas.length === 0) {
+        obrasContainer.innerHTML = '<p>No se encontraron resultados para tu búsqueda.</p>';
+    }
+
+    asignarEventosObras();
+    asignarEventosMerch();
+
+    document.querySelectorAll('.agregar-obra').forEach(boton => {
+        boton.classList.add('btn', 'btn-primary');
+    });
+    
+    document.querySelectorAll('.mostrar-merch').forEach(boton => {
+        boton.classList.add('btn', 'btn-secondary');
+    });
+}
+
+// Asignar la función al botón de búsqueda
+document.getElementById('search-button').addEventListener('click', buscarObras);
+
+// También hacer que la búsqueda ocurra automáticamente al presionar "Enter"
+document.getElementById('search-input').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        buscarObras();
+    }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     renderizarObras();
     actualizarCarrito();
+
+    const finalizarCompraButton = document.querySelector(".modal-footer .btn-primary");
+    if (finalizarCompraButton) {
+        finalizarCompraButton.addEventListener("click", finalizarCompra);
+    }
 });
