@@ -1,0 +1,134 @@
+{
+    "obras": [
+        {
+            "numero": 1,
+            "titulo": "HTML The Play",
+            "img": "./imgs/portadas/portada-html.png",
+            "merch": [
+                {
+                    "nombre": "Taza",
+                    "precio": 10,
+                    "stock": 10,
+                    "img": "./imgs/img-html/html-taza.png"
+                },
+                {
+                    "nombre": "Poster",
+                    "precio": 5,
+                    "stock": 15,
+                    "img": "./imgs/img-html/html-poster.png"
+                },
+                {
+                    "nombre": "Gorra",
+                    "precio": 15,
+                    "stock": 8,
+                    "img": "./imgs/img-html/html-gorra.png"
+                },
+                {
+                    "nombre": "Buzo",
+                    "precio": 40,
+                    "stock": 5,
+                    "img": "./imgs/img-html/html-buzo.png"
+                },
+                {
+                    "nombre": "Remera",
+                    "precio": 20,
+                    "stock": 20,
+                    "img": "./imgs/img-html/html-remera.png"
+                },
+                {
+                    "nombre": "Programa",
+                    "precio": 3,
+                    "stock": 25,
+                    "img": "./imgs/img-html/html-programa.png"
+                }
+            ]
+        },
+        {
+            "numero": 2,
+            "titulo": "CSS The Play",
+            "img": "./imgs/portadas/portada-css.png",
+            "merch": [
+                {
+                    "nombre": "Taza",
+                    "precio": 10,
+                    "stock": 10,
+                    "img": "./imgs/img-css/css-taza.png"
+                },
+                {
+                    "nombre": "Poster",
+                    "precio": 5,
+                    "stock": 15,
+                    "img": "./imgs/img-css/css-poster.png"
+                },
+                {
+                    "nombre": "Gorra",
+                    "precio": 15,
+                    "stock": 8,
+                    "img": "./imgs/img-css/css-gorra.png"
+                },
+                {
+                    "nombre": "Buzo",
+                    "precio": 40,
+                    "stock": 5,
+                    "img": "./imgs/img-css/css-buzo.png"
+                },
+                {
+                    "nombre": "Remera",
+                    "precio": 20,
+                    "stock": 20,
+                    "img": "./imgs/img-css/css-remera.png"
+                },
+                {
+                    "nombre": "Programa",
+                    "precio": 3,
+                    "stock": 25,
+                    "img": "./imgs/img-css/css-programa.png"
+                }
+            ]
+        },
+        {
+            "numero": 3,
+            "titulo": "JavaScript The Play",
+            "img": "./imgs/portadas/portada-js.png",
+            "merch": [
+                {
+                    "nombre": "Taza",
+                    "precio": 10,
+                    "stock": 10,
+                    "img": "./imgs/img-javascript/javascript-taza.png"
+                },
+                {
+                    "nombre": "Poster",
+                    "precio": 5,
+                    "stock": 15,
+                    "img": "./imgs/img-javascript/javascript-poster.png"
+                },
+                {
+                    "nombre": "Gorra",
+                    "precio": 15,
+                    "stock": 8,
+                    "img": "./imgs/img-javascript/javascript-gorra.png"
+                },
+                {
+                    "nombre": "Buzo",
+                    "precio": 40,
+                    "stock": 5,
+                    "img": "./imgs/img-javascript/javascript-buzo.png"
+                },
+                {
+                    "nombre": "Remera",
+                    "precio": 20,
+                    "stock": 20,
+                    "img": "./imgs/img-javascript/javascript-remera.png"
+                },
+                {
+                    "nombre": "Programa",
+                    "precio": 3,
+                    "stock": 25,
+                    "img": "./imgs/img-javascript/javascript-programa.png"
+                }
+            ]
+        }
+    ]
+}
+

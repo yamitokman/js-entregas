@@ -1,44 +1,23 @@
-const obras = [
-    {
-        numero: 1,
-        titulo: "HTML The Play",
-        img: "./imgs/portadas/portada-html.png",
-        merch: [
-            { nombre: "Taza", precio: 10, stock: 10, img: "./imgs/img-html/html-taza.png" },
-            { nombre: "Poster", precio: 5, stock: 15, img: "./imgs/img-html/html-poster.png" },
-            { nombre: "Gorra", precio: 15, stock: 8, img: "./imgs/img-html/html-gorra.png" },
-            { nombre: "Buzo", precio: 40, stock: 5, img: "./imgs/img-html/html-buzo.png" },
-            { nombre: "Remera", precio: 20, stock: 20, img: "./imgs/img-html/html-remera.png" },
-            { nombre: "Programa", precio: 3, stock: 25, img: "./imgs/img-html/html-programa.png" },
-        ],
-    },
-    {
-        numero: 2,
-        titulo: "CSS The Play",
-        img: "./imgs/portadas/portada-css.png",
-        merch: [
-            { nombre: "Taza", precio: 10, stock: 10, img: "./imgs/img-css/css-taza.png" },
-            { nombre: "Poster", precio: 5, stock: 15, img: "./imgs/img-css/css-poster.png" },
-            { nombre: "Gorra", precio: 15, stock: 8, img: "./imgs/img-css/css-gorra.png" },
-            { nombre: "Buzo", precio: 40, stock: 5, img: "./imgs/img-css/css-buzo.png" },
-            { nombre: "Remera", precio: 20, stock: 20, img: "./imgs/img-css/css-remera.png" },
-            { nombre: "Programa", precio: 3, stock: 25, img: "./imgs/img-css/css-programa.png" },
-        ],
-    },
-    {
-        numero: 3,
-        titulo: "JavaScript The Play",
-        img: "./imgs/portadas/portada-js.png",
-        merch: [
-            { nombre: "Taza", precio: 10, stock: 10, img: "./imgs/img-javascript/javascript-taza.png" },
-            { nombre: "Poster", precio: 5, stock: 15, img: "./imgs/img-javascript/javascript-poster.png" },
-            { nombre: "Gorra", precio: 15, stock: 8, img: "./imgs/img-javascript/javascript-gorra.png" },
-            { nombre: "Buzo", precio: 40, stock: 5, img: "./imgs/img-javascript/javascript-buzo.png" },
-            { nombre: "Remera", precio: 20, stock: 20, img: "./imgs/img-javascript/javascript-remera.png" },
-            { nombre: "Programa", precio: 3, stock: 25, img: "./imgs/img-javascript/javascript-programa.png" },
-        ],
-    },
-];
+// Función para cargar los datos desde el archivo JSON
+async function cargarDatos() {
+    try {
+        const obrasGuardadas = localStorage.getItem('obras');
+        if (obrasGuardadas) {
+            obras = JSON.parse(obrasGuardadas);
+        } else {
+            const response = await fetch('./data.json');
+            const data = await response.json();
+            obras = data.obras;
+        }
+        renderizarObras();
+    } catch (error) {
+        console.error("Error al cargar los datos:", error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    cargarDatos();
+});
 
 const filas = [
     { rango: "1 a 30", precio: 100 },
@@ -50,6 +29,7 @@ let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
 function guardarCarrito() {
     localStorage.setItem('carrito', JSON.stringify(carrito));
+    localStorage.setItem('obras', JSON.stringify(obras));
 }
 
 // Funcion para calcular el total del carrito
@@ -76,7 +56,7 @@ function actualizarCarrito() {
         return;
     }
 
-    cartCount.textContent = carrito.length;
+    cartCount.textContent = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
     if (carrito.length === 0) {
         cartContent.innerHTML = "<p>Tu carrito está vacío.</p>";
@@ -105,7 +85,10 @@ function actualizarCarrito() {
     cartContent.innerHTML = "";
     cartContent.appendChild(lista);
 
-    const total = calcularTotal();
+    const total = carrito.reduce((sum, item) => {
+        return sum + (item.tipo === "obra" ? item.precio : item.precioTotal);
+    }, 0);
+
     cartTotal.textContent = `Total: $${total}`;
     cartTotal.style.display = "block";
 
@@ -114,7 +97,6 @@ function actualizarCarrito() {
             const index = e.target.dataset.index;
             eliminarItemCarrito(index);
         });
-
     });
 
     guardarCarrito();
@@ -122,7 +104,20 @@ function actualizarCarrito() {
 
 // Funcion para eliminar un ítem del carrito
 function eliminarItemCarrito(index) {
+    const item = carrito[index];
+
+    if (item.tipo === "merch") {
+        const obra = obras.find((o) => o.titulo === item.titulo);
+        const merch = obra.merch.find((m) => m.nombre === item.item);
+
+        if (merch) {
+            merch.stock += item.cantidad;
+        }
+    }
+
     carrito.splice(index, 1);
+
+    guardarCarrito();
     actualizarCarrito();
 }
 
@@ -133,20 +128,39 @@ function agregarObraAlCarrito(numeroObra, fecha, fila) {
     const cantidadEntradas = tarjeta.querySelector(".cantidad-entradas").value;
 
     if (!fecha || !fila || cantidadEntradas <= 0) {
-        alert("Por favor, selecciona una fecha, fila válida y cantidad mayor a 0.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Por favor, selecciona una fecha, fila válida y cantidad mayor a 0.'
+        });
         return;
     }
 
     const filaSeleccionada = filas.find((f) => f.rango === fila);
     const precioFila = filaSeleccionada ? filaSeleccionada.precio : 0;
 
-    carrito.push({
-        tipo: "obra",
-        titulo: obra.titulo,
-        fecha,
-        fila,
-        cantidad: parseInt(cantidadEntradas),
-        precio: precioFila * parseInt(cantidadEntradas),
+    const existingItem = carrito.find(
+        (c) => c.tipo === "obra" && c.titulo === obra.titulo && c.fecha === fecha && c.fila === fila
+    );
+
+    if (existingItem) {
+        existingItem.cantidad += parseInt(cantidadEntradas, 10);
+        existingItem.precio += precioFila * parseInt(cantidadEntradas, 10);
+    } else {
+        carrito.push({
+            tipo: "obra",
+            titulo: obra.titulo,
+            fecha,
+            fila,
+            cantidad: parseInt(cantidadEntradas, 10),
+            precio: precioFila * parseInt(cantidadEntradas, 10),
+        });
+    }
+
+    Swal.fire({
+        icon: 'success',
+        title: '¡Obra agregada al carrito!',
+        text: `${obra.titulo} - ${cantidadEntradas} entrada(s) agregadas.`
     });
 
     actualizarCarrito();
@@ -165,32 +179,75 @@ function agregarMerchAlCarrito(numeroObra) {
             precio: parseInt(input.dataset.precio),
         }));
 
+    let itemsSinStock = [];
+
     itemsSeleccionados.forEach((item) => {
         const merch = obra.merch.find((m) => m.nombre === item.nombre);
 
-        if (merch && merch.stock >= item.cantidad) {
-            merch.stock -= item.cantidad;
-            carrito.push({
-                tipo: "merch",
-                titulo: obra.titulo,
-                item: item.nombre,
-                cantidad: item.cantidad,
-                precioTotal: item.cantidad * item.precio,
-            });
-        } else {
-            alert(`No hay suficiente stock para ${item.nombre}.`);
+        if (merch) {
+            if (merch.stock >= item.cantidad) {
+                merch.stock -= item.cantidad;
+
+                const existingItem = carrito.find(
+                    (c) => c.tipo === "merch" && c.titulo === obra.titulo && c.item === item.nombre
+                );
+
+                if (existingItem) {
+                    existingItem.cantidad += item.cantidad;
+                    existingItem.precioTotal += item.cantidad * item.precio;
+                } else {
+                    carrito.push({
+                        tipo: "merch",
+                        titulo: obra.titulo,
+                        item: item.nombre,
+                        cantidad: item.cantidad,
+                        precioTotal: item.cantidad * item.precio,
+                    });
+                }
+            } else {
+                itemsSinStock.push(item.nombre);
+            }
         }
     });
 
+    if (itemsSeleccionados.length > 0) {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Merch agregado al carrito!',
+            html: itemsSeleccionados
+                .filter((item) => !itemsSinStock.includes(item.nombre))
+                .map(
+                    (item) => `<p>${item.cantidad} x ${item.nombre} - $${item.cantidad * item.precio}</p>`
+                )
+                .join(''),
+            confirmButtonText: 'Aceptar',
+        });
+    }
+
+    if (itemsSinStock.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Stock insuficiente',
+            html: itemsSinStock.map((nombre) => `<p>${nombre} no tiene stock suficiente.</p>`).join(''),
+            confirmButtonText: 'Aceptar',
+        });
+    }
+
+    guardarCarrito();
     actualizarCarrito();
     mostrarMerch(numeroObra);
 }
+
 
 // Función para renderizar las obras
 function renderizarObras() {
     const container = document.getElementById("obras-container");
     if (!container) {
-        alert("Error: contenedor de obras no encontrado.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error: contenedor de obras no encontrado.'
+        });
         return;
     }
 
@@ -239,11 +296,16 @@ function asignarEventosObras() {
             const numeroObra = boton.dataset.numero;
 
             if (!fecha || !fila) {
-                alert("Por favor, selecciona una fecha y fila.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Por favor, selecciona una fecha y fila.'
+                });
                 return;
             }
 
             agregarObraAlCarrito(numeroObra, fecha, fila);
+            guardarCarrito();
         });
     });
 }
@@ -266,9 +328,9 @@ function mostrarMerch(numeroObra) {
         <h3>Merchandising de ${obra.titulo}</h3>
         <div class="row">
             ${obra.merch
-                .map(
-                    (item) =>
-                        `<div class="col-md-4 merch-item">
+            .map(
+                (item) =>
+                    `<div class="col-md-4 merch-item">
                             <img src="${item.img}" alt="${item.nombre}" class="img-fluid">
                             <p>${item.nombre} - $${item.precio} (Stock: ${item.stock})</p>
                             <input 
@@ -281,8 +343,8 @@ function mostrarMerch(numeroObra) {
                                 data-precio="${item.precio}" 
                                 data-stock="${item.stock}">
                         </div>`
-                )
-                .join("")}
+            )
+            .join("")}
         </div>
         <button id="agregar-merch" class="btn btn-success mt-3">Agregar Merch al Carrito</button>
     `;
@@ -302,31 +364,63 @@ function ocultarMerch() {
 // Función para finalizar la compra
 function finalizarCompra() {
     if (carrito.length === 0) {
-        alert("Tu carrito está vacío. Agrega productos antes de finalizar la compra.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Tu carrito está vacío. Agrega productos antes de finalizar la compra.'
+        });
         return;
     }
 
-    alert("¡Gracias por tu compra! 🛒🎉");
-    
-    carrito = [];
-    
-    actualizarCarrito();
+    const modal = new bootstrap.Modal(document.getElementById('modalDatosPersonales'));
+    modal.show();
 
-    const cartModal = document.getElementById("cartModal");
-    const modalInstance = bootstrap.Modal.getInstance(cartModal);
-    if (modalInstance) {
-        modalInstance.hide();
-    }
+    document.getElementById('btnFinalizarCompra').addEventListener('click', () => {
+        const nombre = document.getElementById('nombre').value.trim();
+        const apellido = document.getElementById('apellido').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const domicilio = document.getElementById('domicilio').value.trim();
+
+        if (!nombre || !apellido || !email || !domicilio) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor, completa todos los campos antes de finalizar la compra.'
+            });
+            return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor, ingresa un correo electrónico válido.'
+            });
+            return;
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: '¡Compra finalizada! 🛒🎉',
+            text: `Gracias por tu compra, ${nombre} ${apellido}. Los productos serán enviados a ${domicilio}.`
+        });
+
+        carrito = [];
+        actualizarCarrito();
+        guardarCarrito();
+
+        modal.hide();
+    });
 }
 
 // Función para filtrar las obras según la búsqueda del usuario
 function buscarObras() {
     const searchQuery = document.getElementById('search-input').value.toLowerCase();
     const obrasContainer = document.getElementById('obras-container');
-    const obrasFiltradas = obras.filter(obra => 
+    const obrasFiltradas = obras.filter(obra =>
         obra.titulo.toLowerCase().includes(searchQuery)
     );
-    
+
     obrasContainer.innerHTML = '';
 
     obrasFiltradas.forEach(obra => {
@@ -354,7 +448,12 @@ function buscarObras() {
     });
 
     if (obrasFiltradas.length === 0) {
-        obrasContainer.innerHTML = '<p>No se encontraron resultados para tu búsqueda.</p>';
+        Swal.fire({
+            icon: 'info',
+            title: 'Sin resultados',
+            text: 'No se encontraron resultados para tu búsqueda.'
+        });
+        return;
     }
 
     asignarEventosObras();
@@ -363,7 +462,7 @@ function buscarObras() {
     document.querySelectorAll('.agregar-obra').forEach(boton => {
         boton.classList.add('btn', 'btn-primary');
     });
-    
+
     document.querySelectorAll('.mostrar-merch').forEach(boton => {
         boton.classList.add('btn', 'btn-secondary');
     });
@@ -373,7 +472,7 @@ function buscarObras() {
 document.getElementById('search-button').addEventListener('click', buscarObras);
 
 // También hacer que la búsqueda ocurra automáticamente al presionar "Enter"
-document.getElementById('search-input').addEventListener('keydown', function(event) {
+document.getElementById('search-input').addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
         buscarObras();
     }
@@ -381,8 +480,8 @@ document.getElementById('search-input').addEventListener('keydown', function(eve
 
 document.addEventListener("DOMContentLoaded", () => {
     carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    renderizarObras();
     actualizarCarrito();
+    renderizarObras();
 
     const finalizarCompraButton = document.querySelector(".modal-footer .btn-primary");
     if (finalizarCompraButton) {

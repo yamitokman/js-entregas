@@ -138,15 +138,28 @@ body {
     border-radius: 10px;
 }
 
-.merch-item {
+#merch-container .merch-item {
     text-align: center;
     margin-bottom: 20px;
 }
 
-.merch-img {
-    height: 100px;
-    object-fit: contain;
+#merch-container .merch-item img {
+    width: 80%;
+    height: auto;
     margin-bottom: 10px;
+    border-radius: 10px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+
+#merch-container .merch-item img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+#merch-container .merch-item p {
+    font-size: 0.9rem;
+    margin: 5px 0;
 }
 
 .cantidad-control {
@@ -257,6 +270,62 @@ body {
 
 .btn-secondary:hover {
     background-color: #1e050d !important;
+}
+
+/* Estilo para el modal de datos personales */
+#modalDatosPersonales .modal-content {
+    border-radius: 10px;
+}
+
+#modalDatosPersonales .modal-header {
+    background-color: #451425;
+    border-bottom: 1px solid #B7416A;
+}
+
+#modalDatosPersonales .modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f8f9fa;
+}
+
+#modalDatosPersonales .btn-close-white {
+    filter: brightness(0) invert(1);
+}
+
+#modalDatosPersonales .form-control {
+    border: 1px solid #451425;
+    border-radius: 5px;
+}
+
+#modalDatosPersonales .form-control:focus {
+    border-color: #B7416A;
+    box-shadow: 0 0 5px rgba(183, 65, 106, 0.5);
+}
+
+#modalDatosPersonales .btn-primary {
+    background-color: #B7416A;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#modalDatosPersonales .btn-primary:hover {
+    background-color: #8b2c4d;
+    transform: scale(1.05);
+}
+
+#modalDatosPersonales .text-light {
+    color: #f8f9fa;
+}
+
+#modalDatosPersonales #btnFinalizarCompra {
+    background-color: #B7416A; 
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#modalDatosPersonales #btnFinalizarCompra:hover {
+    background-color: #8b2c4da5;
 }
 
 /* Total del Carrito */
